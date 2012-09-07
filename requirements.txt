@@ -1,0 +1,8 @@
+google-api-python-client==1.0c3
+httplib2==0.7.5
+oauth==1.0.1
+oauth2==1.5.211
+python-gflags==2.0
+python-twitter==0.8.2
+simplejson==2.6.1
+wsgiref==0.1.2
