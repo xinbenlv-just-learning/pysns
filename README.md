@@ -1,21 +1,24 @@
 # PySns
 Python Social Network Service to run on terminal.
 
-# Versioning and Changelog
-Current: `0.0.1`
+# Versions and Changelog
+Current: `0.0.2`
+
+## 0.0.2 
+* Re-organized Interface
 
 ## 0.0.1 
 * Init launch
 * Added twitter support
 
-# Author
-Zainan Victor Zhou <zzn@zzn.im>
+
+# Screenshot
 
 # License
 The program is granted with MIT License
 
 ```
-Copyright (C) 2012 Zainan Victor Zhou
+Copyright (C) 2012 Zainan Victor Zhou <zzn@zzn.im>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal in

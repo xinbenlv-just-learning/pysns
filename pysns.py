@@ -1,38 +1,55 @@
-import re
-import twitter
-from twitter import TwitterError
 from colorstring import colorstring as c
 
-AUTHOR = "Zainan Victor Zhou <zzn@zzn.im>"
+#####Test here
+
+
+REFERENCE = "https://github.com/xinbenlv/pysns"
 
 class PySns:
     
-    def __init__(self):
-        # Twitter 
-        self.twitter = twitter.Api(consumer_key='', # TODO put your consumer key for your application
-            consumer_secret='', # TODO put your consumer secret for your application
-            access_token_key='', # TODO put your access_token_key you obtain from get_access_token.py
-            access_token_secret='', # TODO put your access_token_secret you obtain from get_access_token.py
-            cache=None)
-        # TODO Facebook
-        # TODO Google Plus
-    def Console(self):
+    def __init__(self, additional_helpers = None):
+        # TODO include all helpers here
+        self.helpers = {}
+        
+        # Add googleplus helper
+        # from google_plus_helper import GooglePlusHelper
+        # self.helpers.append("googleplus", GooglePlusHelper)
+
+        # Add twitter helper
+        
+        from twitter_helper import TwitterHelper
+        self.helpers["twitter"] = TwitterHelper()
+
+        # Add facebook helper
+        # from facebook_helper import FacebookHelper
+        # self.helpers.append("twitter", FacebookHelper)
+
+        # Additional Helper for Extension
+        if additional_helpers != None:
+            for h in additional_helpers:
+                self.helpers[h] = additional_helpers[h]
+
+    def console(self):
         while(True):
-            command = self.GetCommand() 
+            command = self.getCommand() 
             if command in ["h","help"]:
                 pass
             elif command in ["quit","exit","q","e"]:
-                print c("Thank you for using PySNS by %s" % AUTHOR,"blue")
+                print c("Thank you for using PySNS (visit:%s)" % REFERENCE,"blue")
                 print c("Bye!","blue")
                 break
+            elif command in ["l","login"]:
+                results = self.login()
+                self.showResults("Login",results)
             elif command in ["s","status"]:
-                # Post a message onto all SNS
-                message = self.GetMessage()
-                results =self.PostMessage(message)
+                # Post a status onto all SNS
+                status = self.getStatus()
+                results = self.postStatus(status)
+                self.showResults("Update Status",results)
                 continue
             elif command in ["t","timeline"]:
                 # TODO Fetch timeline from all SNS 
-                self.ShowTimeline()
+                self.showTimeline()
                 continue
             else:
                 print c("Wrong command.","blue")
@@ -40,52 +57,53 @@ class PySns:
             print c("    's' or 'status': post a new status to all SNS.","blue")
             print c("    't' or 'timeline' fetch timelines from all SNS.","blue")
             print c("    'q' or 'quit' or 'e' or 'exit': exit PySns.","blue")
- 
-    def GetCommand(self):
+    def login(self):
+        results = {}
+        for sns in self.helpers:
+            api = self.helpers[sns]
+            results[sns] = api.authenticate()
+        return results
+    def getCommand(self):
         return raw_input(c("Command:","blue"))
-    def ShowTimeline(self):
-        
-        # Twitter
-        print c("Twitter","clear","green") + " Timeline"
-        statuses = self.twitter.GetUserTimeline()
-        user = statuses[0].user
-        statuses = self.twitter.GetFriendsTimeline()
-        
-        status_names = []
-        status_times = []
-        status_texts = []
-        for s in statuses:
-            status_names.append(s.user.screen_name)
-            status_times.append("%s" % s.created_at)
-            status_texts.append(s.text)
-        for i in range(len(statuses)):
-            s_color = ""
-            s_color += "{:>30}".format(c(status_times[i], "clear", "blue"))
-            s_color += " "
-            s_color += "{:>30}".format(c(status_names[i], "clear", "yellow")) 
-            s_color += ": "
-            s_color += status_texts[i]
-            print s_color
-            
-    def GetMessage(self):
+
+    def showTimeline(self):
+        for sns in self.helpers:
+            api = self.helpers[sns]
+            if not api.authenticated:
+                continue
+            print c(sns,"clear","green") + " Timeline"
+            timeline = api.fetchTimeline()
+            for status in timeline:
+                s_color = ""
+                s_color += "{:>30}".format(c(status["timestamp"], "clear", "blue"))
+                s_color += " "
+                s_color += "{:>30}".format(c(status["screen_name"], "clear", "yellow")) 
+                s_color += ": "
+                s_color += status["status"]
+                print s_color
+    def showResults(self,action,results):
+        for sns in results:
+            if results[sns][0] == True:
+                color = "green"
+            else:
+                color = "red"
+            to_user = action + " " + c(sns,"white","green") + " is " + c("%s" % results[sns][0],color)
+            if results[sns][1] != "":
+                to_user += ", reason: %s" %results[sns][1]
+            print to_user
+    def getStatus(self):
         return raw_input(c("New Status:","green"))
        
-    def PostMessage(self,message, tag = True): 
-        results = {} #key, value = [status,color,additional message]
-        try:
-            if tag == True:
-                message += " #PySns"
-            status = self.twitter.PostUpdate(message)
-            results["Twitter"] = ["Successful","green",""]
-        except TwitterError,e:
-            results["Twitter"] = ["Failed","green",str(e)]
-        for ret in results:
-            to_user = "Post to "+c(ret,"white","green") + " is " + c(results[ret][0],results[ret][1])
-            if results[ret][2] != "":
-                to_user += ", because: %s" %results[ret][2]
-            print to_user
+    def postStatus(self,status, tag = True): 
+        results = {}
+        for sns in self.helpers:
+            api = self.helpers[sns]
+            if not api.authenticated:
+                results[sns] = [False,"not authenticated"]
+                continue
+            results[sns] = api.postStatus(status)
         return results
 
 if __name__ == "__main__":
     pysns= PySns()
-    pysns.Console()
+    pysns.console()
