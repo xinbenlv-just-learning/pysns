@@ -2,7 +2,10 @@
 Python Social Network Service to run on terminal.
 
 # Versions and Changelog
-Current: `0.0.2`
+Current: `0.0.3`
+
+## 0.0.3
+* Added support for Google Plus, note Google Plus is read-only
 
 ## 0.0.2 
 * Re-organized Interface

@@ -12,8 +12,8 @@ class PySns:
         self.helpers = {}
         
         # Add googleplus helper
-        # from google_plus_helper import GooglePlusHelper
-        # self.helpers.append("googleplus", GooglePlusHelper)
+        from google_plus_helper import GooglePlusHelper
+        self.helpers["google_plus"] = GooglePlusHelper()
 
         # Add twitter helper
         
@@ -41,6 +41,7 @@ class PySns:
             elif command in ["l","login"]:
                 results = self.login()
                 self.showResults("Login",results)
+                continue
             elif command in ["s","status"]:
                 # Post a status onto all SNS
                 status = self.getStatus()
@@ -48,14 +49,14 @@ class PySns:
                 self.showResults("Update Status",results)
                 continue
             elif command in ["t","timeline"]:
-                # TODO Fetch timeline from all SNS 
                 self.showTimeline()
                 continue
             else:
                 print c("Wrong command.","blue")
             print c("Available commands:","blue")
             print c("    's' or 'status': post a new status to all SNS.","blue")
-            print c("    't' or 'timeline' fetch timelines from all SNS.","blue")
+            print c("    't' or 'timeline' fetch my personal status timeline from all SNS.","blue")
+            print c("    'l' or 'login' login into all SNS.","blue")
             print c("    'q' or 'quit' or 'e' or 'exit': exit PySns.","blue")
     def login(self):
         results = {}
@@ -67,10 +68,12 @@ class PySns:
         return raw_input(c("Command:","blue"))
 
     def showTimeline(self):
+
         for sns in self.helpers:
             api = self.helpers[sns]
             if not api.authenticated:
                 continue
+            print ""
             print c(sns,"clear","green") + " Timeline"
             timeline = api.fetchTimeline()
             for status in timeline:
@@ -81,6 +84,7 @@ class PySns:
                 s_color += ": "
                 s_color += status["status"]
                 print s_color
+            print ""
     def showResults(self,action,results):
         for sns in results:
             if results[sns][0] == True:
@@ -91,6 +95,7 @@ class PySns:
             if results[sns][1] != "":
                 to_user += ", reason: %s" %results[sns][1]
             print to_user
+
     def getStatus(self):
         return raw_input(c("New Status:","green"))
        
