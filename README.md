@@ -1,4 +1,7 @@
-# PySns
+# PySns https://secure.travis-ci.org/xinbenlv/pysns.png?branch=master
+"!https://secure.travis-ci.org/xinbenlv/pysns.png?branch=master!":http://travis-ci.org/xinbenlv/pysns
+
+
 Python Social Network Service to run on terminal.
 
 # Versions and Changelog
